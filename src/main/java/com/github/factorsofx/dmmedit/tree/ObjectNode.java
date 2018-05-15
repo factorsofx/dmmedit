@@ -1,5 +1,7 @@
 package com.github.factorsofx.dmmedit.tree;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,6 +49,11 @@ public class ObjectNode
     public Var getVar(String name)
     {
         return vars.getOrDefault(name, parent == null ? null : parent.getVar(name));
+    }
+
+    public Collection<Var> getVars()
+    {
+        return Collections.unmodifiableCollection(vars.values());
     }
 
     public ObjectNode getSubtype(String name)

@@ -108,11 +108,15 @@ public class XMLObjectTreeLoader implements ObjectTreeLoader
         turf.parent(atom);
         area.parent(atom);
 
+        log.info("Done with node transformation");
+
         return new AtomTree(datum);
     }
 
     private static ObjectNode recursivelyGenerateNode(Node xmlNode) throws XPathExpressionException
     {
+        xmlNode.getParentNode().removeChild(xmlNode);
+
         ObjectNode thisNode = collectNodeShallow(xmlNode);
         for(Node childXmlNode : new IterableNodeList((NodeList)subtypeExpr.evaluate(xmlNode, XPathConstants.NODESET)))
         {
@@ -125,7 +129,7 @@ public class XMLObjectTreeLoader implements ObjectTreeLoader
 
     private static ObjectNode collectNodeShallow(Node xmlNode) throws XPathExpressionException
     {
-        String nodeName = xmlNode.getFirstChild().getTextContent();
+        String nodeName = xmlNode.getFirstChild().getTextContent().trim();
 
         ObjectNode node = new ObjectNode(nodeName);
 
@@ -133,7 +137,7 @@ public class XMLObjectTreeLoader implements ObjectTreeLoader
 
         for(Node varNode : varNodeList)
         {
-            String varName = varNode.getFirstChild().getTextContent();
+            String varName = varNode.getFirstChild().getTextContent().trim();
             String varVal = (String) varValExpr.evaluate(varNode, XPathConstants.STRING);
             node.addVar(new Var(varName, varVal));
         }
