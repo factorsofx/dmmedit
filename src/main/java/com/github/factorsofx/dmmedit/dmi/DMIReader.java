@@ -9,7 +9,7 @@ import java.io.File;
 
 public class DMIReader
 {
-    public DMIIcon read(File file)
+    public DMI read(File file)
     {
         PngReader reader = new PngReader(file);
 

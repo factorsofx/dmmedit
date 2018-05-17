@@ -1,6 +1,6 @@
-package com.github.factorsofx.dmmedit.persistence;
+package com.github.factorsofx.dmmedit.project;
 
-import com.github.factorsofx.dmmedit.dmi.DMIIcon;
+import com.github.factorsofx.dmmedit.dmi.DMI;
 import com.github.factorsofx.dmmedit.tree.AtomTree;
 
 import java.util.Map;
@@ -12,6 +12,6 @@ import java.util.Map;
  */
 public class MapEnv
 {
-    private Map<String, DMIIcon> iconCache; // Map of full filename to dmi
+    private Map<String, DMI> iconCache; // Map of full filename to dmi
     private AtomTree tree;
 }
