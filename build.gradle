@@ -17,7 +17,6 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
     antlr "org.antlr:antlr4:4.7.1" // use ANTLR version 4
-    compile 'com.yuvalshavit:antlr-denter:1.0' // Parsing DM newlines
 
     compile 'ar.com.hjg:pngj:2.1.0' // For DMI reading
 

@@ -1,28 +1,9 @@
 grammar DMI;
 
-tokens { INDENT, DEDENT }
+dmi : header iconStates ;
 
-@lexer::header
-{
-import com.yuvalshavit.antlr4.DenterHelper;
-}
+iconStates : iconDesc + ;
 
-@lexer::members
-{
-private final DenterHelper denter = new DenterHelper(NL, DMLexer.INDENT, DMLexer.DEDENT)
-{
-    @Override
-    public Token pullToken()
-    {
-        return DMLexer.super.nextToken();
-    }
-};
+header : ' ';
 
-@Override
-public Token nextToken()
-{
-    return denter.nextToken();
-}
-}
-
-iconStates : header iconDesc + ;
+iconDesc : ' ';

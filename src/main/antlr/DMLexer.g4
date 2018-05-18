@@ -1,6 +1,6 @@
 lexer grammar DMLexer;
 
-tokens { INDENT, DEDENT }
+tokens { INDENT, DEDENT, STR_OPEN, STR_END, EMBED_OPEN }
 
 @lexer::header
 {
@@ -9,7 +9,10 @@ import com.yuvalshavit.antlr4.DenterHelper;
 
 @lexer::members
 {
-private final DenterHelper denter = new DenterHelper(NL, DMLexer.INDENT, DMLexer.DEDENT)
+private int embeds = 0;
+private int nesting = 0;
+
+private final DenterHelper denter = new DenterHelper(NL, INDENT, DEDENT)
 {
     @Override
     public Token pullToken()
@@ -25,18 +28,75 @@ public Token nextToken()
 }
 }
 
-DSTR_OPEN  : '{"' -> mode(STR) ;
-STR_OPEN   : '"'  -> mode(DSTR) ;
+LINE_ESCAPE : '\\' CRLF -> skip ;
+IGNORE_NL : CRLF {nesting > 0}? -> skip ;
+NL : ( CRLF  [ \t]* );
 
-NUM        : '-' ? [0-9]+ ( '.' [0-9]+ )? ;
+DSTR_OPEN   : '{"' -> pushMode(DSTR), type(STR_OPEN) ;
+SSTR_OPEN   : '"'  -> pushMode(STR) , type(STR_OPEN) ;
 
-NL : ( '\r'?  '\n'  WS* ) | ';' ;
+EMBED_CLOSE : ']' {embeds > 0}?
+             { embeds--; }
+             -> popMode;
+
+// Keywords
+
+KW_AS : 'as' ;
+KW_IN : 'in' ;
+
+// Operators
+
+STRICT_DEREF : '.' ;
+LAX_DEREF    : ':' ;
+BOOL_NOT : '!' ;
+BIT_NOT  : '~' ;
+INCR     : '++' ;
+DECR     : '--' ;
+NEG      : '-' ;
+POW      : '**' ;
+MULT     : '*' ;
+DIV      : '/' ;
+MOD      : '%' ;
+ADD      : '+' ;
+
+OPEN_PAREN  : '(' { nesting++; } ;
+CLOSE_PAREN : ')' { nesting--;} ;
+
+OPEN_BRACKET  : '[' { nesting++; } ;
+CLOSE_BRACKET : ']' { nesting--; } ;
+
+ARG_SEP : ',' ;
+
+NUM : '-' ? [0-9]+ ( '.' [0-9]+ )? ;
 
 IDENTIFIER : [a-zA-Z] [a-zA-Z0-9_]* ;
-PATH_SEPARATOR : '/' ;
 
 EQUALS      :  '=' ;
 BRACE_OPEN  :  '{' ;
 BRACE_CLOSE :  '}' ;
 
+fragment CRLF : '\r' ? '\n' ;
+
 WS : [\t ] -> skip ;
+
+mode DSTR;
+
+DEMBED_OPEN  : '['
+              { embeds++; }
+              ->
+              type(EMBED_OPEN),
+              pushMode(DEFAULT_MODE);
+
+DSTR_END     : '"}' -> popMode, type(STR_END) ;
+DSTR_FRAG    : . -> more ;
+
+mode STR;
+
+SEMBED_OPEN  : '['
+              { embeds++; }
+              ->
+              type(EMBED_OPEN),
+              pushMode(DEFAULT_MODE);
+
+SSTR_END     : '"' -> popMode, type(STR_END) ;
+SSTR_FRAG    : . -> more ;
